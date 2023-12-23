@@ -1,28 +1,26 @@
-const express = require('express')
-const productos = require('./productManager')
+import express from "express";
+import productRouter from "./routers/products.routers.js";
+import cartRouter from "./routers/carts.routers.js";
 
+const app = express();
+const PORT = 8080;
 
-const app = express()
+const configureApp = () => {
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
+  });
+};
 
-app.get('/products', (req, res) => {
-    const limiteProductos = req.query.limit
+const configureEndpoints = () => {
+  app.use("/api/products", productRouter);
+  app.use("/api/carts", cartRouter);
+};
 
-    if(limiteProductos <  productos.getProducts().length){
-        const numeroDeProductos = productos.getProducts().filter(prod => prod.id <= limiteProductos);
-        res.send(numeroDeProductos)
-    }
+const initializeApp = () => {
+  configureApp();
+  configureEndpoints();
+};
 
-    res.send(productos.getProducts())
-})
-
-app.get('/products/:pid', (req, res) => {
-    const { pid } = req.params
-    const product = productos.getProductById(Number(pid))
-    console.log('Esta es la ruta de productos')
-    res.send(product)
-})
-
-const port = 8080
-app.listen(port, ()=>{
-    console.log(`Escuchando en el puerto ${port}`)
-})
+initializeApp();
